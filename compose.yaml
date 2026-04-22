@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=surl
+      - POSTGRES_PASSWORD=surl
+      - POSTGRES_DB=surl
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/18/docker
+
+volumes:
+  postgres_data: {}
