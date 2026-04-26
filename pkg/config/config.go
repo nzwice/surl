@@ -14,11 +14,18 @@ type DBConfig struct {
 	ConnMaxIdleTime time.Duration `mapstructure:"conn_max_idle_time"`
 }
 
+type RedisConfig struct {
+	Addr     string `mapstructure:"addr"`
+	Password string `mapstructure:"password"`
+	DB       int    `mapstructure:"db"`
+}
+
 type AppConfig struct {
-	Debug    bool     `mapstructure:"debug"`
-	DB       DBConfig `mapstructure:"db"`
-	HttpAddr string   `mapstructure:"http_addr"`
-	GrpcAddr string   `mapstructure:"grpc_addr"`
+	Debug    bool        `mapstructure:"debug"`
+	DB       DBConfig    `mapstructure:"db"`
+	Redis    RedisConfig `mapstructure:"redis"`
+	HttpAddr string      `mapstructure:"http_addr"`
+	GrpcAddr string      `mapstructure:"grpc_addr"`
 }
 
 func Load(path string) (*AppConfig, error) {
