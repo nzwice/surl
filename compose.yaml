@@ -10,6 +10,12 @@ services:
       - 5432:5432
     volumes:
       - postgres_data:/var/lib/postgresql/18/docker
+  cache:
+    image: redis:8.6.2-alpine
+    restart: unless-stopped
+    ports:
+      - 6379:6379
+    command: [ "redis-server", "--requirepass", "surl" ]
 
 volumes:
   postgres_data: {}

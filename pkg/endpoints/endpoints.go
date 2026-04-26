@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/go-kit/kit/endpoint"
-	"github.com/nzwice/surl/pkg/shorten"
+	"github.com/nzwice/surl/pkg/shortensvc"
 )
 
 type Set struct {
@@ -13,7 +13,7 @@ type Set struct {
 	GetOriginalUrl endpoint.Endpoint
 }
 
-func MakeEndpoints(shortenService shorten.Service) Set {
+func MakeEndpoints(shortenService shortensvc.Service) Set {
 	return Set{
 		ShortenUrl: endpoint.Chain(
 			loggingMw(),
@@ -42,7 +42,7 @@ type GetOriginalUrlResponse struct {
 	OriginalUrl string `json:"original_url"`
 }
 
-func makeShortenUrlEndpoint(svc shorten.Service) endpoint.Endpoint {
+func makeShortenUrlEndpoint(svc shortensvc.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(ShortenUrlRequest)
 		resp, err := svc.ShortenUrl(ctx, req.OriginalUrl, req.Alias, req.ExpiredAt)
@@ -55,7 +55,7 @@ func makeShortenUrlEndpoint(svc shorten.Service) endpoint.Endpoint {
 	}
 }
 
-func makeGetOrignalUrlEndpoint(svc shorten.Service) endpoint.Endpoint {
+func makeGetOrignalUrlEndpoint(svc shortensvc.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(GetOriginalUrlRequest)
 		resp, err := svc.GetOriginalUrl(ctx, req.ShortCode)

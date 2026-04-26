@@ -1,4 +1,4 @@
-package shorten
+package shortensvc
 
 import (
 	"context"
@@ -24,15 +24,15 @@ type Service interface {
 	GetOriginalUrl(ctx context.Context, shortCode string) (string, error)
 }
 
+type Proxy func(Service) Service
+
 type service struct {
-	db    *bun.DB
-	inmem map[string]string
+	db *bun.DB
 }
 
 func New(db *bun.DB) Service {
 	return &service{
-		db:    db,
-		inmem: map[string]string{},
+		db: db,
 	}
 }
 

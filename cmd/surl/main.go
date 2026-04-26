@@ -12,9 +12,10 @@ import (
 
 	"github.com/nzwice/surl/pkg/config"
 	"github.com/nzwice/surl/pkg/endpoints"
+	"github.com/nzwice/surl/pkg/kvstore"
 	"github.com/nzwice/surl/pkg/logging"
-	logger "github.com/nzwice/surl/pkg/logging"
-	"github.com/nzwice/surl/pkg/shorten"
+	logs "github.com/nzwice/surl/pkg/logging"
+	"github.com/nzwice/surl/pkg/shortensvc"
 	"github.com/nzwice/surl/pkg/surldb"
 	"github.com/nzwice/surl/pkg/transport"
 	"github.com/uptrace/bun"
@@ -23,17 +24,18 @@ import (
 
 func main() {
 	var configPath string
-	flag.StringVar(&configPath, "config", "config.yaml", "")
+	flag.StringVar(&configPath, "c", "config.yaml", "")
+	flag.Parse()
 
 	ctx := context.Background()
 	ctx, cancelFunc := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer cancelFunc()
 
-	logger.SetupLogger()
+	logs.SetupLogger()
 
 	cfg, err := config.Load(configPath)
 	if err != nil {
-		slog.ErrorContext(ctx, "fail to load config", logger.ErrorAttr(err))
+		slog.ErrorContext(ctx, "fail to load config", logs.ErrorAttr(err))
 		return
 	}
 
@@ -41,14 +43,20 @@ func main() {
 	{
 		db, err = surldb.New(cfg.DB, cfg.Debug)
 		if err != nil {
-			slog.ErrorContext(ctx, "fail to connect to db", logger.ErrorAttr(err))
+			slog.ErrorContext(ctx, "fail to connect to db", logs.ErrorAttr(err))
 			return
 		}
 	}
 
-	var shortenSvc shorten.Service
+	var cacheClient kvstore.Client
 	{
-		shortenSvc = shorten.New(db)
+		cacheClient = kvstore.NewRedis(cfg.Redis)
+	}
+
+	var shortenSvc shortensvc.Service
+	{
+		shortenSvc = shortensvc.New(db)
+		shortenSvc = shortensvc.NewCache(cacheClient)(shortenSvc)
 	}
 
 	endpoints := endpoints.MakeEndpoints(shortenSvc)
