@@ -52,7 +52,10 @@ func (r *redisImpl) SetTTL(ctx context.Context, k string, v any, ttl time.Durati
 		return errors.Join(ErrDeSerialization, err)
 	}
 	_, err = r.client.Set(ctx, k, string(b), ttl).Result()
-	return err
+	if err != nil {
+		return errors.Join(ErrRedisClient, err)
+	}
+	return nil
 }
 
 func NewRedis(cfg config.RedisConfig) Client {
