@@ -17,15 +17,17 @@ func MakeEndpoints(shortenService shortensvc.Service) Set {
 	return Set{
 		ShortenUrl: endpoint.Chain(
 			loggingMw(),
+			validateReqMw(),
 		)(makeShortenUrlEndpoint(shortenService)),
 		GetOriginalUrl: endpoint.Chain(
 			loggingMw(),
+			validateReqMw(),
 		)(makeGetOrignalUrlEndpoint(shortenService)),
 	}
 }
 
 type ShortenUrlRequest struct {
-	OriginalUrl string     `json:"original_url"`
+	OriginalUrl string     `json:"original_url" validate:"url,required"`
 	Alias       *string    `json:"alias"`
 	ExpiredAt   *time.Time `json:"expired_at"`
 }
@@ -35,7 +37,7 @@ type ShortenUrlResponse struct {
 }
 
 type GetOriginalUrlRequest struct {
-	ShortCode string `json:"short_code"`
+	ShortCode string `json:"short_code" validate:"required"`
 }
 
 type GetOriginalUrlResponse struct {
