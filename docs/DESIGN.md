@@ -92,14 +92,4 @@ Location: https://myawesomewebsite.com
 - NFR2:
   - scale to 1B urls: db size = (8 bytes + 2KB + 8 bytes + 8 bytes + 8 bytes) \* 1B ~= estimate 2.5TB. Still good with normal DB (10TB)
 - NFR3:
-  - shortCode = base62encode((id + randomInt()) % sizeSpace) // base62 is 0..9a..zA..Z
-  - sha256 strategy
-
-  ```
-  codeHash = sha256(originalUrl + now + iter)
-  shortCodeLeft = hex(codeHash)[5 first chars]
-  shortCodeRight = hex(codeHash)[5 last chars]
-  shortCode = shuffle(shortCodeLeft, upper(shortCodeRight))
-  ```
-
-  - retry each strategy 3 times if not unique.
+  - shortCode = base62encode(now().nano % sizeSpace) // base62 is 0..9a..zA..Z
