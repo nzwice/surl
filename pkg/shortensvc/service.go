@@ -4,9 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"hash/fnv"
 	"net/url"
-	"strconv"
 	"time"
 
 	"github.com/nzwice/surl/pkg/surldb"
@@ -83,11 +81,25 @@ func (s *service) ShortenUrl(ctx context.Context, originalUrl string, alias *str
 	return newUrl.ShortCode, nil
 }
 
-func (s *service) generateShortCode(originalUrl string) string {
-	hash := fnv.New64a()
-	hash.Write([]byte(originalUrl))
-	calc := hash.Sum64()
-	return strconv.FormatUint(calc, 10)
+var (
+	shortCodeCharset = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+)
+
+func (s *service) generateShortCode(_ string) string {
+	nowNano := int(time.Now().UTC().UnixNano())
+	base62 := func(n int) string {
+		var sz = len(shortCodeCharset)
+		var b []byte
+		for n > 0 {
+			b = append(b, shortCodeCharset[n%sz])
+			n /= sz
+		}
+		for i, j := 0, len(b)-1; i < j; i, j = i+1, j-1 {
+			b[i], b[j] = b[j], b[i]
+		}
+		return string(b)
+	}
+	return base62(nowNano)
 }
 
 func (s *service) expireOrDefault(expiredAt *time.Time) time.Time {

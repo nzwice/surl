@@ -53,6 +53,7 @@ func jsonDecodeRequest[T any]() httptransport.DecodeRequestFunc {
 
 func jsonEncodeResponse[T any]() httptransport.EncodeResponseFunc {
 	return func(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+		w.Header().Set("Content-Type", "application/json")
 		response = response.(T)
 		err := json.NewEncoder(w).Encode(response)
 		return err
@@ -79,6 +80,7 @@ func encodeRedirectUrlResponse() httptransport.EncodeResponseFunc {
 
 func errorEncoder(ctx context.Context, err error, w http.ResponseWriter) {
 	status, resp := extractError(err)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(resp)
 }
