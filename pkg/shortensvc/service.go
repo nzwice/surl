@@ -56,7 +56,7 @@ func (s *service) ShortenUrl(ctx context.Context, originalUrl string, alias *str
 	originalUrl = parsedUrl.String()
 	var isNewAlias bool
 	if alias != nil {
-		isExisting, err := s.db.NewSelect().Where("short_code = ?", *alias).Exists(ctx)
+		isExisting, err := s.db.NewSelect().Table("urls").Where("short_code = ?", *alias).Exists(ctx)
 		if err == nil {
 			isNewAlias = !isExisting
 		} else {

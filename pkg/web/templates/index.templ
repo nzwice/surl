@@ -1,0 +1,110 @@
+package templates
+
+import (
+	"github.com/templui/templui/components/alert"
+	"github.com/templui/templui/components/button"
+	"github.com/templui/templui/components/card"
+	"github.com/templui/templui/components/copybutton"
+	"github.com/templui/templui/components/datepicker"
+	"github.com/templui/templui/components/form"
+	"github.com/templui/templui/components/input"
+)
+
+var (
+	shortenUrlHandler = templ.NewOnceHandle()
+)
+
+templ Index() {
+	@shortenUrlHandler.Once() {
+		<script>
+			function buildShortUrl(shortCode) {
+				return window.location.origin + "/r/" + shortCode // FIXME: perhaps the server will response this
+			}
+			$(document).ready(function(){
+				$('#shorten-url-btn').click(function() {
+					const originalUrl = $('#original-url').val();
+					const alias = $('#alias').val();
+					const expiredAt = $('input[name="expired-at"]').val();
+					const data = {
+						"original_url": originalUrl,
+						"alias": alias,
+					};
+					if (expiredAt?.length > 0) {
+						data["expired_at"] = new Date(expiredAt).toISOString();
+					}
+					console.log(data)
+					$.ajax({
+						method: "POST",
+						url: "/api/v1/surl",
+						data: JSON.stringify(data),
+						contentType: "application/json",
+						dataType: "json",
+						success: function(resp, status) {
+							const shortUrl = buildShortUrl(resp.short_code);
+							$('#shorten-url-id').text(shortUrl)
+							$('#shorten-url-result').removeClass("hidden")
+						},
+						error: function(xhr, status, error) {
+							console.log("error", xhr, status, error);
+						}
+					})
+				})
+			})
+		</script>
+	}
+	<div class="h-screen flex items-center justify-center">
+		@card.Card(card.Props{
+			Class: "max-w-xl",
+		}) {
+			@card.Header() {
+				@card.Title() {
+					Free URL Shortener
+				}
+			}
+			@card.Content() {
+				@form.Item() {
+					@input.Input(input.Props{
+						ID:          "original-url",
+						Type:        input.TypeText,
+						Placeholder: "Paste your url here...",
+					})
+					@input.Input(input.Props{
+						ID:          "alias",
+						Type:        input.TypeText,
+						Placeholder: "(Optional) custom short code if none taken",
+					})
+					@datepicker.DatePicker(datepicker.Props{
+						ID:          "expired-at",
+						Placeholder: "(Optional) expiration date",
+						Format:      datepicker.FormatLOCALE_FULL,
+					})
+					@button.Button(button.Props{FullWidth: true, Type: "submit", ID: "shorten-url-btn"}) {
+						Go
+					}
+				}
+			}
+			@card.Footer(card.FooterProps{
+				ID:    "shorten-url-result",
+				Class: "hidden",
+			}) {
+				@alert.Alert(alert.Props{
+					Variant: alert.VariantDefault,
+					Class:   "border-green-500",
+				}) {
+					@alert.Description(alert.DescriptionProps{
+						Class: "flex justify-between",
+					}) {
+						<div id="shorten-url-id" class="text-sm text-muted-foreground align-baseline">
+							https://localhost:8080/r/something
+						</div>
+						<div>
+							@copybutton.CopyButton(copybutton.Props{
+								TargetID: "shorten-url-id",
+							})
+						</div>
+					}
+				}
+			}
+		}
+	</div>
+}

@@ -1,0 +1,26 @@
+package templates
+
+import (
+	"github.com/templui/templui/components/copybutton"
+	"github.com/templui/templui/components/datepicker"
+	"github.com/templui/templui/components/input"
+)
+
+templ Page(content templ.Component) {
+	<!DOCTYPE html>
+	<html lang="en" class="dark">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>URL Shortener</title>
+			<link rel="stylesheet" href="/static/css/output.css"/>
+			@input.Script()
+			@copybutton.Script()
+			@datepicker.Script()
+			<script src="https://code.jquery.com/jquery-4.0.0.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
+		</head>
+		<body>
+			@content
+		</body>
+	</html>
+}
