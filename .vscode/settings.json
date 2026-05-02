@@ -1,4 +1,13 @@
 {
   "protobuf.diagnostics.documentationComments": false,
-  "markdown.preview.doubleClickToSwitchToEditor": false
+  "markdown.preview.doubleClickToSwitchToEditor": false,
+  "[templ]": {
+    "editor.defaultFormatter": "a-h.templ"
+  },
+  "emmet.includeLanguages": {
+    "templ": "html"
+  },
+  "tailwindCSS.includeLanguages": {
+    "templ": "html"
+  }
 }

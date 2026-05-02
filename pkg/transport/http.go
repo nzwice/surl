@@ -4,15 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
 
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/go-playground/validator/v10"
 
+	"github.com/nzwice/surl/pkg/config"
 	"github.com/nzwice/surl/pkg/endpoints"
+	"github.com/nzwice/surl/pkg/web"
 )
 
-func HttpHandler(e endpoints.Set) http.Handler {
+func HttpHandler(ctx context.Context, e endpoints.Set, cfg *config.AppConfig) http.Handler {
 
 	mux := http.NewServeMux()
 
@@ -36,6 +39,14 @@ func HttpHandler(e endpoints.Set) http.Handler {
 
 	mux.Handle("POST /api/v1/surl", shortenUrlHandler)
 	mux.Handle("GET /r/{shortCode}", redirectUrlHandler)
+
+	if len(cfg.StaticDir) > 0 {
+		slog.InfoContext(ctx, "serving web assets", slog.Any("path", cfg.StaticDir))
+		mux.Handle("GET /static/", web.Static(cfg.StaticDir))
+	}
+
+	web.RegisterTemplUIScripts(mux, cfg.Debug)
+	mux.Handle("GET /", web.Page("index"))
 
 	return withRecovery(withRequestId(withLogging(mux)))
 }

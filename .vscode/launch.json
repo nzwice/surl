@@ -10,7 +10,10 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}/cmd/surl/main.go",
-      "args": ["-c", "${workspaceFolder}/config.yaml"]
+      "args": ["-c", "${workspaceFolder}/config.yaml"],
+      "env": {
+        "STATIC_DIR": "${workspaceFolder}/pkg/web/assets"
+      }
     }
   ]
 }

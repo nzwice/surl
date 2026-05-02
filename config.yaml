@@ -11,3 +11,4 @@ redis:
   db: 0
 http_addr: ":8080"
 grpc_addr: ":9090"
+static_dir: "" # need default value for viper to work correctly: https://github.com/spf13/viper/issues/1895

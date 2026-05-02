@@ -21,11 +21,12 @@ type RedisConfig struct {
 }
 
 type AppConfig struct {
-	Debug    bool        `mapstructure:"debug"`
-	DB       DBConfig    `mapstructure:"db"`
-	Redis    RedisConfig `mapstructure:"redis"`
-	HttpAddr string      `mapstructure:"http_addr"`
-	GrpcAddr string      `mapstructure:"grpc_addr"`
+	Debug     bool        `mapstructure:"debug"`
+	DB        DBConfig    `mapstructure:"db"`
+	Redis     RedisConfig `mapstructure:"redis"`
+	HttpAddr  string      `mapstructure:"http_addr"`
+	GrpcAddr  string      `mapstructure:"grpc_addr"`
+	StaticDir string      `mapstructure:"static_dir"`
 }
 
 func Load(path string) (*AppConfig, error) {

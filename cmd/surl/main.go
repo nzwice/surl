@@ -60,8 +60,7 @@ func main() {
 	}
 
 	endpoints := endpoints.MakeEndpoints(shortenSvc)
-
-	httpHandler := transport.HttpHandler(endpoints)
+	httpHandler := transport.HttpHandler(ctx, endpoints, cfg)
 	httpServer := &http.Server{
 		Addr:    cfg.HttpAddr,
 		Handler: httpHandler,

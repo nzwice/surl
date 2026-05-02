@@ -1,0 +1,31 @@
+version: "3"
+
+tasks:
+  templ:
+    desc: Run templ with integrated server and hot reload
+    cmds:
+      - go tool templ generate --proxy http://localhost:8080 --watch --cmd="go
+        run cmd/surl/main.go" --open-browser=false
+    env:
+      STATIC_DIR: "{{ .ROOT_DIR }}/pkg/web/assets"
+
+  tailwind:
+    desc: Watch Tailwind CSS changes
+    cmds:
+      - |
+        TEMPLUI_PATH="$(go list -mod=mod -m -f {{`'{{.Dir}}'`}} github.com/templui/templui)" && \
+        printf '%s\n' \
+          '@source "./**/*.templ";' \
+          "@source \"$TEMPLUI_PATH/components/**/*.templ\";" \
+          > ./pkg/web/assets/css/sources.generated.css && \
+        node_modules/.bin/tailwindcss -i ./pkg/web/assets/css/input.css -o ./pkg/web/assets/css/output.css --watch
+
+  server:
+    cmds:
+      - watchmedo auto-restart --no-restart-on-command-exit --patterns="*.go"
+        --recursive -- go run cmd/surl/main.go -c config.yaml
+
+  dev:
+    desc: Start development server with hot reload
+    cmds:
+      - task --parallel tailwind templ
